@@ -23,7 +23,7 @@
 {{#ember-chosen multiple=true maxSelectedOptions=2 chosenMaxSelected="onChosenMaxSelected"}}
     <option></option>
     {{#each countries as |country|}}
-        <option {{bind-attr value=country.code}}>{{country.name}}</option>
+        <option value="{{country.code}}">{{country.name}}</option>
     {{/each}}
 {{/ember-chosen}}
 

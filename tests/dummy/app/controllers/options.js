@@ -9,7 +9,7 @@ export default Ember.Controller.extend({
   countries: Ember.computed.alias('controllers.index.countries'),
   maxSelectedMessage: null,
   actions: {
-    onChosenMaxSelected: function(e, chosen) {
+    onChosenMaxSelected: function() {
       this.set('maxSelectedMessage', "You can't select any more!");
     }
   }

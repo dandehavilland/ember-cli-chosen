@@ -1,0 +1,9 @@
+{{#each content as |item|}}
+  {{chosen-option
+    content=item
+    selection=selection
+    parentValue=value
+    multiple=multiple
+    optionLabelPath=optionLabelPath
+    optionValuePath=optionValuePath}}
+{{/each}}

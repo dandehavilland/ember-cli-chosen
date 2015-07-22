@@ -56,8 +56,8 @@ export default Ember.Component.extend({
   selection: null,
   value: null,
 
-  groupView: Ember.SelectOptgroup,
-  optionView: Ember.SelectOption,
+  groupComponent: 'chosen-optgroup',
+  optionComponent: 'chosen-option',
 
   isRtl: false,
 
@@ -74,7 +74,7 @@ export default Ember.Component.extend({
 
   /**
    * didInsertElement sets up chosen when component is inserted into DOM.
-   * 
+   *
    */
   didInsertElement: function() {
     this._super();
@@ -83,7 +83,7 @@ export default Ember.Component.extend({
 
   /**
    * groupedContent creates a grouped content with respect to optionGroupPath.
-   * 
+   *
    * @return {Array} Content in a grouped form.
    */
   groupedContent: computed('optionGroupPath', 'content.@each', function() {
@@ -108,9 +108,9 @@ export default Ember.Component.extend({
   }),
 
   /**
-   * _options watches property changes and builds up chosen options that are 
+   * _options watches property changes and builds up chosen options that are
    * passed to chosen component.
-   * 
+   *
    * @return {Object} Chosen options.
    */
   _options: computed.apply(null, COMPONENT_PROPERTIES.concat(function () {
@@ -119,7 +119,7 @@ export default Ember.Component.extend({
     CHOSEN_PROPERTIES.forEach(function (propertyName) {
       var propertyValue = this.get(propertyName);
       if (!Ember.isNone(propertyValue)) {
-        options[propertyName.decamelize()] = propertyValue;
+        options[Ember.String.decamelize(propertyName)] = propertyValue;
       }
     }.bind(this));
 
@@ -129,7 +129,7 @@ export default Ember.Component.extend({
   /**
    * _getFirstContent returns initial selected value from content property with
    * respect to optionValuePath.
-   * 
+   *
    * @return {Object} Initial selected value or null.
    */
   _getFirstContent: function () {
@@ -159,7 +159,7 @@ export default Ember.Component.extend({
   /**
    * _setInitialSelectionValue sets the initial values for selection and value
    * properties.
-   * 
+   *
    */
   _setInitialSelectionValue: function () {
     var isMultiple = this.get('multiple'),
@@ -193,15 +193,15 @@ export default Ember.Component.extend({
 
   /**
    * _setupChosen intializes chosen component.
-   * 
+   *
    */
-  _setupChosen: function() {
+  _setupChosen: Ember.observer('_options', function() {
     Ember.run.scheduleOnce('afterRender', this, this.afterRenderEvent);
-  }.observes('_options'),
+  }),
 
   /**
    * _subscribeToChosenEvents subscribes to chosen events.
-   * 
+   *
    * @param  {Element} chosenElement
    */
   _subscribeToChosenEvents: function (chosenElement) {
@@ -209,7 +209,7 @@ export default Ember.Component.extend({
 
     // Subscribe to chosen events
     CHOSEN_EVENTS.forEach(function (eventName) {
-      var eventHandlerName = '_' + CHOSEN_EVENT_MAPING[eventName] || eventName.decamelize();
+      var eventHandlerName = '_' + CHOSEN_EVENT_MAPING[eventName] || Ember.String.decamelize(eventName);
       if (this[eventHandlerName]) {
         chosenElement.on('chosen:' + eventName, this[eventHandlerName].bind(this));
       }
@@ -218,7 +218,7 @@ export default Ember.Component.extend({
 
   /**
    * _unsubscribeFromChosenEvents unsubscribes from chosen events.
-   * 
+   *
    * @param  {Element} chosenElement
    */
   _unsubscribeFromChosenEvents: function (chosenElement) {
@@ -226,7 +226,7 @@ export default Ember.Component.extend({
 
     // Subscribe to chosen events
     CHOSEN_EVENTS.forEach(function (eventName) {
-      var eventHandlerName = '_' + CHOSEN_EVENT_MAPING[eventName] || eventName.decamelize();
+      var eventHandlerName = '_' + CHOSEN_EVENT_MAPING[eventName] || Ember.String.decamelize(eventName);
       if (this[eventHandlerName]) {
         chosenElement.off('chosen:' + eventName);
       }
@@ -236,7 +236,7 @@ export default Ember.Component.extend({
 
   /**
    * afterRenderEvent is called after all child views are rendered
-   * 
+   *
    */
   afterRenderEvent: function () {
     var options = this.get('_options'),
@@ -248,7 +248,7 @@ export default Ember.Component.extend({
 
     this._setInitialSelectionValue();
 
-    // Initialize chosen 
+    // Initialize chosen
     var chosenElement = this.$().chosen(options);
     this._subscribeToChosenEvents(chosenElement);
 
@@ -260,13 +260,13 @@ export default Ember.Component.extend({
   },
 
   /**
-   * _selectionChanged is triggered when selection on chosen components is 
+   * _selectionChanged is triggered when selection on chosen components is
    * changed. Selection and value properties are updated here. selectionDidChange
    * is triggered after setting selection values.
-   * 
+   *
    * @param  {Object} ev     Event
    * @param  {Object} params Chosen params
-   * 
+   *
    */
   _selectionChanged: function (ev, params) {
     var selectedValue = params.selected,
@@ -275,7 +275,7 @@ export default Ember.Component.extend({
       index;
 
     if (isMultiple) {
-      currentSelection = this.get('selection');
+      currentSelection = Ember.A(this.get('selection'));
       if (!currentSelection) {
         currentSelection = Ember.A();
         this.set('selection', currentSelection);
@@ -302,7 +302,7 @@ export default Ember.Component.extend({
    * _maxSelected is triggered when max number of items is selected on chosen
    * component. Max number of items can be controlled through maxSelectedOptions
    * property.
-   * 
+   *
    */
   _maxSelected: function () {
     this.sendAction('chosenMaxSelected');
@@ -310,7 +310,7 @@ export default Ember.Component.extend({
 
   /**
    * _chosenReady is triggered on chosen:ready event.
-   * 
+   *
    */
   _chosenReady: function () {
     this.sendAction('chosenReady');
@@ -318,7 +318,7 @@ export default Ember.Component.extend({
 
   /**
    * _showingDropdown is triggered on chosen:showing_dropdown event.
-   * 
+   *
    */
   _showingDropdown: function () {
     this.sendAction('chosenShowingDropdown');
@@ -326,7 +326,7 @@ export default Ember.Component.extend({
 
   /**
    * _hidingDropdown is triggered on chosen:hiding_dropdown event.
-   * 
+   *
    */
   _hidingDropdown: function () {
     this.sendAction('chosenHidingDropdown');
@@ -334,7 +334,7 @@ export default Ember.Component.extend({
 
   /**
    * _noResults is triggered on chosen:no_results event.
-   * 
+   *
    */
   _noResults: function () {
     this.sendAction('chosenNoResults');

@@ -4,7 +4,7 @@
 
 {{#if optionGroupPath}}
   {{#each groupedContent as |group|}}
-    {{view groupView
+    {{component groupComponent
       content=group.content
       label=group.label
       selection=selection
@@ -15,12 +15,12 @@
   {{/each}}
 {{else}}
   {{#each content as |item|}}
-    {{view optionView
+    {{component optionComponent
       content=item
       selection=selection
       parentValue=value
       multiple=multiple
       optionLabelPath=optionLabelPath
       optionValuePath=optionValuePath}}
-    {{/each}}
+  {{/each}}
 {{/if}}
